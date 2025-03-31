@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Personalized Recommendations - TravelMate</title>
+    <meta name="description" content="TravelMate personalized travel recommendations">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='travelmatelogo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/recommend.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Star Rating CSS */
+        .star-rating {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: rgba(0,0,0,0.03);
+            border-radius: 8px;
+        }
+        
+        .star-rating h4 {
+            margin: 5px 0 10px 0;
+            font-size: 16px;
+            color: var(--text-primary, #333);
+        }
+        
+        .star-rating .stars {
+            display: inline-block;
+            direction: rtl; /* Right to left to make the hover effect work correctly */
+        }
+
+        .star-rating .stars input[type="radio"] {
+            display: none;
+        }
+
+        .star-rating .stars label {
+            font-size: 24px;
+            color: #ccc;
+            cursor: pointer;
+            padding: 0 3px;
+            transition: color 0.2s ease;
+        }
+
+        .star-rating .stars label:hover,
+        .star-rating .stars label:hover ~ label,
+        .star-rating .stars input[type="radio"]:checked ~ label {
+            color: #ffc107;
+        }
+        
+        .rate-btn {
+            display: block;
+            margin: 12px auto 0;
+            padding: 8px 16px;
+            background-color: var(--accent-color, #4caf50);
+            color: #fff;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            width: fit-content;
+        }
+        
+        .rate-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .rate-btn:hover:not(:disabled) {
+            background-color: var(--accent-color-hover, #45a049);
+            transform: translateY(-1px);
+        }
+
+        /* Center the attribute tags */
+        .attributes-list {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        /* Add this to your <style> section in the head */
+        .notification {
+            visibility: hidden;
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 250px;
+            max-width: 80%;
+            opacity: 0;
+            transition: all 0.3s;
+        }
+
+        .notification.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4caf50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Success and error variants */
+        .notification.success {
+            background-color: #4caf50;
+        }
+
+        .notification.error {
+            background-color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <!-- Simplified Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-brand">
+                <a href="{{ url_for('main_page') }}" class="navbar-title">
+                    <img src="{{ url_for('static', filename='travelmatelogo.png') }}" alt="TravelMate Logo">
+                </a>
+            </div>
+            
+            <div class="date-display">
+                <div id="date-time" class="current-date"></div>
+            </div>
+            
+            <div class="theme-toggle-container">
+                <span class="theme-icon">☀️</span>
+                <label class="theme-toggle">
+                    <input type="checkbox" id="themeToggle">
+                    <span class="slider"></span>
+                </label>
+                <span class="theme-icon">🌙</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>Your Personalized Recommendations</h2>
+        
+        {% if user_prefs %}
+            <div class="user-preferences">
+                <h3>Your Preferences:</h3>
+                {% for pref in user_prefs %}
+                    <div class="preference-tag">{{ pref }}</div>
+                {% endfor %}
+            </div>
+            
+            {% for pref in user_prefs %}
+                {% set has_places = false %}
+                <div class="preference-section">
+                    <div class="preference-header">Places with "{{ pref }}"</div>
+                    <div class="places-container">
+                        {% for place in recommendations %}
+                            {% if pref in place.matching_preferences %}
+                                {% set has_places = true %}
+                                <div class="place-card">
+                                    <div class="place-name">{{ place.place_name }}</div>
+                                    <p>{{ place.description }}</p>
+                                    <div class="place-attributes">
+                                        <div class="place-info">
+                                            {% if place.rating %}
+                                                <p>⭐ {{ place.rating }}/5 rating</p>
+                                            {% endif %}
+                                            {% if place.price_range %}
+                                                <p>💲 Price range: {{ place.price_range }}</p>
+                                            {% endif %}
+                                            {% if place.hours %}
+                                                <p>🕒 {{ place.hours }}</p>
+                                            {% endif %}
+                                            {% if place.address %}
+                                                <p>📍 {{ place.address }}</p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="attributes-list">
+                                            {% for attr in place.attributes %}
+                                                <span class="attribute-tag">{{ attr }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    {% if place.match_score %}
+                                        <div class="match-score">{{ (place.match_score * 100)|int }}% match</div>
+                                    {% endif %}
+                                    <a href="{{ url_for('places_page') }}#{{ place.place_name|replace(' ', '-')|lower }}" 
+                                       class="btn btn-details">View Full Details</a>
+                                    <!-- Replace the existing star rating HTML with this simpler version -->
+                                    <div class="star-rating">
+                                        <form action="{{ url_for('rate_place', place_id=place.place_id) }}" method="POST" class="rating-form">
+                                            <h4>Rate this place:</h4>
+                                            <div class="stars">
+                                                {% for i in range(1, 6) %}
+                                                    <input type="radio" id="star{{ i }}_{{ place.place_id }}" name="rating" value="{{ 6 - i }}"
+                                                           {% if place.user_rating == (6 - i) %} checked {% endif %}>
+                                                    <label for="star{{ i }}_{{ place.place_id }}" title="{{ 6 - i }} stars">★</label>
+                                                {% endfor %}
+                                            </div>
+                                            <button type="submit" class="rate-btn">Submit Rating</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        {% if not has_places %}
+                            <div class="empty-message">No places match this preference.</div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+            
+        {% else %}
+            <div class="empty-message">No recommendations available. Please update your preferences.</div>
+        {% endif %}
+
+        <div class="buttons-container">
+            <a href="{{ url_for('preferences_page') }}" class="btn btn-primary">Update Preferences</a>
+            <a href="{{ url_for('main_page') }}" class="btn btn-secondary">Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.checked = savedTheme === 'dark';
+        
+        // Theme toggle event listener
+        themeToggle.addEventListener('change', function() {
+            const newTheme = this.checked ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+        
+        // Clock function
+        clock();
+        function clock() {
+            const today = new Date();
+            // ...rest of the clock function...
+            // (keeping your existing clock code)
+            
+            //get current date and time
+            const date = monthList[month] + " " + day + ", " + year;
+            const time = hourTime + ":" + minute + ":" + second + ampm;
+            const dateTime = date + " - " + time;
+            document.getElementById("date-time").innerHTML = dateTime;
+            setTimeout(clock, 1000);
+        }
+
+        // Handle all rating forms (using radio buttons)
+        document.querySelectorAll('.rating-form').forEach(form => {
+            const radioButtons = form.querySelectorAll('input[type="radio"]');
+            const submitButton = form.querySelector('.rate-btn');
+            
+            // Add click handlers to radio buttons to enable the submit button
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    submitButton.disabled = false;
+                    submitButton.textContent = "Submit Rating";
+                });
+            });
+            
+            // Handle form submission with AJAX
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const formData = new FormData(this);
+                const url = this.action;
+                
+                // Show notification
+                const notification = document.getElementById('notification');
+                notification.querySelector('span').textContent = "Submitting your rating...";
+                notification.classList.add('show');
+                
+                // Modified fetch part in your rating submission
+                fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest' // Add this header
+                    }
+                })
+                .then(response => {
+                    // Check if response is JSON
+                    const contentType = response.headers.get("content-type");
+                    if (contentType && contentType.indexOf("application/json") !== -1) {
+                        return response.json();
+                    } else {
+                        throw new Error("Server returned non-JSON response");
+                    }
+                })
+                .then(data => {
+                    const notificationText = document.getElementById('notification-text');
+                    notificationText.textContent = data.message;
+                    // Rest of your code
+                    notification.classList.add('success');
+                    // ...
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    notification.classList.add('error');
+                    notification.querySelector('span').textContent = "Error submitting rating";
+                    setTimeout(() => {
+                        notification.classList.remove('show');
+                        notification.classList.remove('error');
+                    }, 3000);
+                });
+            });
+            
+            // If there's already a rating, update button text
+            const checkedRadio = form.querySelector('input[type="radio"]:checked');
+            if (checkedRadio) {
+                submitButton.textContent = "Update Rating";
+                submitButton.disabled = false;
+            }
+        });
+    });
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.rating-form').forEach(form => {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const submitButton = form.querySelector('.rate-btn');
+            const formData = new FormData(this);
+            const url = this.action;
+
+            fetch(url, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            })
+            .then(response => {
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    return response.json();
+                } else {
+                    throw new Error("Non-JSON response");
+                }
+            })
+            .then(data => {
+                if (data.success) {
+                    submitButton.textContent = "Rating Submitted!";
+                    submitButton.disabled = true;
+                } else {
+                    submitButton.textContent = "Submission Failed";
+                }
+                // After 2 seconds, restore button text if needed:
+                setTimeout(() => {
+                    if (!submitButton.disabled) {
+                        submitButton.textContent = "Submit Rating";
+                    }
+                }, 2000);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                submitButton.textContent = "Error, Try Again";
+                setTimeout(() => {
+                    submitButton.textContent = "Submit Rating";
+                }, 3000);
+            });
+        });
+        
+        // If there's already a rating, update button text
+        const submitButton = form.querySelector('.rate-btn');
+        const checkedRadio = form.querySelector('input[type="radio"]:checked');
+        if (checkedRadio) {
+            submitButton.textContent = "Update Rating";
+            submitButton.disabled = false;
+        }
+    });
+});
+</script>
+</body>
+</html>

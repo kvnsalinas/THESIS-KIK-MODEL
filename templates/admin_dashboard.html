@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | TravelMate</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='travelmatelogo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+    <!-- Admin Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-brand">
+                <a href="/admin/dashboard" class="navbar-title">
+                    <img src="{{ url_for('static', filename='travelmatelogo.png') }}" alt="TravelMate Logo">
+                </a>
+            </div>
+            
+            <div class="date-display">
+                <div id="date-time" class="current-date"></div>
+            </div>
+            
+            <div class="navbar-menu">
+                <div class="navbar-links">
+                    <a href="/admin/dashboard" class="navbar-link active">Dashboard</a>
+                    <a href="#users" class="navbar-link">Users</a>
+                    <a href="#audit" class="navbar-link">Audit Logs</a>
+                    <a href="{{ url_for('admin_logout') }}" class="navbar-link">Logout</a>
+                </div>
+                <div class="theme-toggle-container">
+                    <span class="theme-icon">☀️</span>
+                    <label class="theme-toggle">
+                        <input type="checkbox" id="themeToggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span class="theme-icon">🌙</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="hero-container">
+            <div class="welcome-section">
+                <h1>Welcome, {{ admin_username }}!</h1>
+                <p>Manage your TravelMate system from this dashboard.</p>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="dynamic-content">
+            <div class="stats">
+                <div class="stat-box">
+                    <h3>Total Users</h3>
+                    <p>{{ stats.total_users }}</p>
+                </div>
+                <div class="stat-box">
+                    <h3>Active Users</h3>
+                    <p>{{ stats.active_users }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Users Table -->
+        <div class="dynamic-content" id="users">
+            <h2 class="section-title">All System Users</h2>
+            <table>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Created At</th>
+                    <th>Last Login</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.first_name }} {{ user.last_name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ user.last_login.strftime('%Y-%m-%d %H:%M') if user.last_login else 'Never' }}</td>
+                    <td>{{ 'Active' if user.is_active else 'Inactive' }}</td>
+                    <td class="action-buttons">
+                        <a href="{{ url_for('edit_user', user_id=user.id) }}" class="edit-btn">Edit</a> |
+                        {% if user.role != 1 %}
+                        <form action="{{ url_for('delete_user', user_id=user.id) }}" method="POST">
+                            <button type="submit" class="delete-btn" onclick="return confirm('Are you sure you want to delete this user?')">Delete</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <!-- Audit Logs Table -->
+        <div class="dynamic-content" id="audit">
+            <h2 class="section-title">
+                System Audit Logs
+                <button onclick="printAuditLogs()" class="print-btn">
+                    <i class="fas fa-print"></i> Print Logs
+                </button>
+            </h2>
+            <div class="audit-logs">
+                <table>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Details</th>
+                    </tr>
+                    {% for log in audit_logs %}
+                    <tr>
+                        <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>{{ log.username }}</td>
+                        <td class="action-cell">{{ log.action }}</td>
+                        <td>{{ log.details }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>TravelMate Admin</h3>
+                <p>Administration panel for managing TravelMate system.</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 TravelMate. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Date display
+        window.addEventListener("load", () => {
+            clock();
+            function clock() {
+                const today = new Date();
+                const hours = today.getHours();
+                const minutes = today.getMinutes();
+                const seconds = today.getSeconds();
+                const hour = hours < 10 ? "0" + hours : hours;
+                const minute = minutes < 10 ? "0" + minutes : minutes;
+                const second = seconds < 10 ? "0" + seconds : seconds;
+                const hourTime = hour > 12 ? hour - 12 : hour;
+                const ampm = hour < 12 ? "AM" : "PM";
+                const month = today.getMonth();
+                const year = today.getFullYear();
+                const day = today.getDate();
+                const monthList = [
+                    "January", "February", "March", "April", "May", "June",
+                    "July", "August", "September", "October", "November", "December"
+                ];
+                const date = monthList[month] + " " + day + ", " + year;
+                const time = hourTime + ":" + minute + ":" + second + ampm;
+                const dateTime = date + " - "+ time;
+                document.getElementById("date-time").innerHTML = dateTime;
+                setTimeout(clock, 1000);
+            }
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.checked = savedTheme === 'dark';
+        
+        themeToggle.addEventListener('change', function() {
+            const newTheme = this.checked ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+
+        // Add this new function for printing
+        function printAuditLogs() {
+            const printWindow = window.open('', '', 'width=800,height=600');
+            const table = document.querySelector('.audit-logs table').cloneNode(true);
+            
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>TravelMate - Audit Logs</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+                        th { background-color: #4CAF50; color: white; }
+                        .header { text-align: center; margin-bottom: 20px; }
+                        .header img { height: 60px; }
+                        .timestamp { font-size: 0.8em; color: #666; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <img src="${document.querySelector('.navbar-title img').src}" alt="TravelMate Logo">
+                        <h1>TravelMate Audit Logs</h1>
+                        <p class="timestamp">Generated on: ${new Date().toLocaleString()}</p>
+                    </div>
+                    ${table.outerHTML}
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.focus();
+            
+            // Wait for images to load before printing
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500);
+        }
+    </script>
+</body>
+</html>

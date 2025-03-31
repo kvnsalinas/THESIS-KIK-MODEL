@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light"> 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Places in Tanay - TravelMate</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='travelmatelogo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/places.css') }}">
+</head>
+<body>
+    <!-- Updated Navbar Structure -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-brand">
+                <a href="/main" class="navbar-title">
+                    <img src="{{ url_for('static', filename='travelmatelogo.png') }}" alt="TravelMate Logo">
+                </a>
+            </div>
+            
+            <div class="date-display">
+                <div id="date-time" class="current-date"></div>
+            </div>
+            
+            <div class="navbar-menu">
+                <div class="navbar-links">
+                    <a href="/main" class="navbar-link">Home</a>
+                    <a href="/profile" class="navbar-link">Profile</a>
+                    <a href="#" class="navbar-link" id="logoutLink">Logout</a>
+                </div>
+                <div class="theme-toggle-container">
+                    <span class="theme-icon">☀️</span>
+                    <label class="theme-toggle">
+                        <input type="checkbox" id="themeToggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span class="theme-icon">🌙</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Notification Element -->
+    <div id="notification" class="notification">
+        <div class="loading-spinner"></div>
+        <span>Logging out...</span>
+    </div>
+
+    <!-- Logout Modal -->
+    <div id="logoutModal" class="modal-overlay">
+        <div class="modal">
+            <h3 class="modal-title">Logout Confirmation</h3>
+            <p class="modal-message">Are you sure you want to logout from your TravelMate account?</p>
+            <div class="modal-buttons">
+                <button id="cancelLogout" class="modal-btn cancel">Cancel</button>
+                <button id="confirmLogout" class="modal-btn confirm">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <div class="header">
+            <h1>Places in Tanay, Rizal</h1>
+            <p class="description">Explore the natural wonders and attractions of Tanay</p>
+        </div>
+        <!-- Search Bar -->
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search places...">
+        </div>
+        <!-- Category Filter -->
+        <div class="category-filter">
+            <button class="filter-btn active" data-category="all">All</button>
+            <button class="filter-btn" data-category="Natural Attraction">Natural Attractions</button>
+            <button class="filter-btn" data-category="Adventure">Adventure</button>
+            <button class="filter-btn" data-category="Historical Site">Historical Sites</button>
+            <button class="filter-btn" data-category="Viewpoint">Viewpoints</button>
+            <button class="filter-btn" data-category="Mountain Village">Mountain Villages</button>
+            <button class="filter-btn" data-category="Restaurant">Restaurants</button>
+            <button class="filter-btn" data-category="Accommodation">Accommodations</button>
+            <button class="filter-btn" data-category="Cafe">Cafes</button>
+        </div>
+
+        <div class="places-grid" id="placesGrid">
+            <!-- Natural Attractions -->
+            <div class="place-card" data-category="Natural Attraction">
+                <div class="place-image">
+                    <img src="/static/places/daranak.jpg" alt="Daranak Falls" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="place-info">
+                    <h3 class="place-title">Daranak Falls</h3>
+                    <span class="place-category">Natural Attraction</span>
+                    <p class="place-description">A beautiful waterfall with crystal clear waters perfect for swimming and picnics.</p>
+                    <div class="place-details">
+                        <p>⭐ 4.5/5 rating</p>
+                        <p>💲 Entrance fee: ₱50</p>
+                        <p>🕒 Open: 8:00 AM - 5:00 PM</p>
+                    </div>
+                </div>
+            </div>
+            <div class="place-card" data-category="Natural Attraction">
+                <div class="place-image">
+                    <img src="/static/places/tinipak.jpg" alt="Tinipak River" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="place-info">
+                    <h3 class="place-title">Tinipak River</h3>
+                    <span class="place-category">Natural Attraction</span>
+                    <p class="place-description">Known for its crystal clear waters and massive white rocks.</p>
+                    <div class="place-details">
+                        <p>⭐ 4.6/5 rating</p>
+                        <p>💲 Entrance fee: ₱100</p>
+                        <p>🕒 Open: 6:00 AM - 5:00 PM</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Adventure -->
+            <div class="place-card" data-category="Adventure">
+                <div class="place-image">
+                    <img src="/static/places/masungi.jpg" alt="Masungi Georeserve" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="place-info">
+                    <h3 class="place-title">Masungi Georeserve</h3>
+                    <span class="place-category">Adventure</span>
+                    <p class="place-description">A conservation area offering unique rope courses and hiking trails through karst formations.</p>
+                    <div class="place-details">
+                        <p>⭐ 4.8/5 rating</p>
+                        <p>💲 Entrance fee: ₱1,500</p>
+                        <p>🕒 By reservation only</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Historical Sites -->
+            <div class="place-card" data-category="Historical Site">
+                <div class="place-image">
+                    <img src="/static/places/calinawan.jpg" alt="Calinawan Cave" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="place-info">
+                    <h3 class="place-title">Calinawan Cave</h3>
+                    <span class="place-category">Historical Site</span>
+                    <p class="place-description">A historic cave with beautiful rock formations and cultural significance.</p>
+                    <div class="place-details">
+                        <p>⭐ 4.3/5 rating</p>
+                        <p>💲 Entrance fee: ₱20</p>
+                        <p>🕒 Open: 7:00 AM - 4:00 PM</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Viewpoints -->
+            <div class="place-card" data-category="Viewpoint">
+                <div class="place-image">
+                    <img src="/static/places/parola.jpg" alt="Parola Lighthouse" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="place-info">
+                    <h3 class="place-title">Parola Lighthouse</h3>
+                    <span class="place-category">Viewpoint</span>
+                    <p class="place-description">A viewpoint offering panoramic views of the Sierra Madre mountains and Laguna de Bay.</p>
+                    <div class="place-details">
+                        <p>⭐ 4.2/5 rating</p>
+                        <p>💲 Entrance fee: Free</p>
+                        <p>🕒 Open: 24 hours</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Mountain Villages -->
+            <div class="place-card" data-category="Mountain Village">
+                <div class="place-image">
+                    <img src="/static/places/daraitan.jpg" alt="Daraitan" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="place-info">
+                    <h3 class="place-title">Daraitan</h3>
+                    <span class="place-category">Mountain Village</span>
+                    <p class="place-description">A remote village offering camping sites, river activities, and hiking trails.</p>
+                    <div class="place-details">
+                        <p>⭐ 4.7/5 rating</p>
+                        <p>💲 Environmental fee: ₱20</p>
+                        <p>🕒 Best visited: 6:00 AM - 4:00 PM</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Restaurants -->
+            <div class="place-card" data-category="Restaurant" data-tags="Breakfast,Lunch,Dinner,Pizza,Outdoor Seating,Vegan">
+                <div class="place-image">
+                    <img src="/static/places/yeyis.jpg" alt="Yeyi's Pizzeria & Café" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="place-info">
+                    <h3 class="place-title">Yeyi's Pizzeria & Café</h3>
+                    <span class="place-category">Restaurant</span>
+                    <p class="place-description">Modern pizzeria and café offering great cocktails, vegan options, and outdoor seating in Tanay.</p>
+                    <div class="place-details">
+                        <p>⭐ 4.6/5 rating</p>
+                        <p>💲 Price range: ₱200-400</p>
+                        <p>🕒 Open:</p>
+                        <p>Mon-Thu: 6AM-2AM</p>
+                        <p>Fri-Sun: 5AM-2AM</p>
+                        <p>📍 KM61 Malapapaya St, Tanay, Rizal</p>
+                    </div>
+                </div>
+            </div>
+            <div class="place-card" data-category="Restaurant" data-tags="Lunch,Dinner,Filipino Cuisine,Scenic View">
+                <div class="place-image">
+                    <img src="/static/places/sample-restaurant.jpg" alt="Sample Restaurant" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="place-info">
+                    <h3 class="place-title">Sample Restaurant</h3>
+                    <span class="place-category">Restaurant</span>
+                    <p class="place-description">A local restaurant offering traditional Filipino cuisine with a scenic mountain view.</p>
+                    <div class="place-details">
+                        <p>⭐ 4.4/5 rating</p>
+                        <p>💲 Price range: ₱200-500</p>
+                        <p>🕒 Open:</p>
+                        <p>Mon-Thu: 7AM-11PM</p>
+                        <p>Fri-Sun: 6AM-1AM</p>
+                        <p>📍 Sitio Mayagay 1 Marilaque, Brgy. Sampaloc</p>
+                        <p>📞 0961 326 1186</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Cafes -->
+            <div class="place-card" data-category="Cafe" data-tags="Coffee,Comfort Food,All-day Dining">
+                <div class="place-image">
+                    <img src="/static/places/padayon.jpg" alt="PADAYON Comfort Food & Coffee" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="place-info">
+                    <h3 class="place-title">PADAYON Comfort Food & Coffee Tanay</h3>
+                    <span class="place-category">Cafe</span>
+                    <p class="place-description">Coffee shop and comfort food destination in Tanay, perfect for casual dining.</p>
+                    <div class="place-details">
+                        <p>⭐ 4.1/5 rating</p>
+                        <p>💲 Price range: ₱200-400</p>
+                        <p>🕒 Open:</p>
+                        <p>Mon-Thu, Fri: 10AM-8PM</p>
+                        <p>Sat-Sun: 8AM-10PM</p>
+                        <p>📍 KM 55 Cuyambay Crossing, Marikina-Infanta Hwy</p>
+                        <p>🔗 <a href="https://www.facebook.com/tanaypadayoncoffee/" target="_blank" style="color: var(--primary-color);">Visit Facebook Page</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="place-card" data-category="Cafe" data-tags="Coffee,Breakfast,All-day Dining,Outdoor Seating,Dogs Allowed">
+                <div class="place-image">
+                    <img src="/static/places/kapenatividad.jpg" alt="Kape Natividad" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="place-info">
+                    <h3 class="place-title">Kape Natividad</h3>
+                    <span class="place-category">Cafe</span>
+                    <p class="place-description">Family-friendly cafe with outdoor seating, kids' menu, and pet-friendly environment in Sampaloc, Tanay.</p>
+                    <div class="place-details">
+                        <p>⭐ 4.4/5 rating (1106 reviews)</p>
+                        <p>💲 Price range: ₱200-400</p>
+                        <p>🕒 Open:</p>
+                        <p>Mon-Thu: 7AM-11PM</p>
+                        <p>Fri-Sun: 6AM-1AM</p>
+                        <p>📍 Sitio Mayagay 1 Marilaque, Brgy. Sampaloc</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Accommodations -->
+            <div class="place-card" data-category="Accommodation" data-tags="Resort Hotel,Scenic View,24 Hours">
+                <div class="place-image">
+                    <img src="/static/places/pranjettohills.jpg" alt="Pranjetto Hills Resort" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="place-info">
+                    <h3 class="place-title">Pranjetto Hills Resort and Conference Center</h3>
+                    <span class="place-category">Accommodation</span>
+                    <p class="place-description">Resort and conference center with scenic views in Sampaloc, Tanay.</p>
+                    <div class="place-details">
+                        <p>⭐ 4.1/5 rating</p>
+                        <p>🕒 Open: 24/7</p>
+                        <p>📍 Sitio Mayagay, Brgy. Sampaloc, Marikina-Infanta Hwy</p>
+                        <p>🔗 <a href="https://www.facebook.com/pranjettohillsresort/" target="_blank" style="color: var(--primary-color);">Visit Facebook Page</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="place-card" data-category="Accommodation" data-tags="Leisure Camp,Scenic View,Camping,Nature">
+                <div class="place-image">
+                    <img src="/static/places/tencents.jpg" alt="Ten Cents to Heaven Leisure Camp" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="place-info">
+                    <h3 class="place-title">Ten Cents to Heaven Leisure Camp</h3>
+                    <span class="place-category">Accommodation</span>
+                    <p class="place-description">A serene leisure camp offering camping facilities, nature activities, and breathtaking mountain views. Perfect for weekend getaways and nature retreats.</p>
+                    <div class="place-details">
+                        <p>⭐ 4.3/5 rating</p>
+                        <p>🕒 Hours:</p>
+                        <p>Mon-Thu: 7 AM–7 PM</p>
+                        <p>Fri-Sat: 7 AM–8:30 PM</p>
+                        <p>Sun: 7 AM–7 PM</p>
+                        <p>📍 Sitio Mayagay II Marcos Highway, Tanay, Philippines</p>
+                        <p>🔗 <a href="https://www.facebook.com/@tencentstoheavenleisurecamp/" target="_blank" style="color: var(--primary-color);">Visit Facebook Page</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="place-card" data-category="Accommodation" data-tags="Resort Hotel,Scenic View,PWD Friendly">
+                <div class="place-image">
+                    <img src="/static/places/sample-resort.jpg" alt="Sample Resort" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="place-info">
+                    <h3 class="place-title">Sample Resort</h3>
+                    <span class="place-category">Accommodation</span>
+                    <p class="place-description">Mountain resort with modern amenities and panoramic views.</p>
+                    <div class="place-details">
+                        <p>⭐ 4.6/5 rating</p>
+                        <p>💲 Rates start at: ₱3,500/night</p>
+                        <p>🕒 Check-in: 2:00 PM, Check-out: 12:00 PM</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="text-align: center;">
+            <a href="{{ url_for('main_page') }}" class="back-button">Back to Main Page</a>
+        </div>
+        
+        <!-- Place Details Modal -->
+        <div id="placeModal" class="place-modal">
+            <div class="place-modal-content">
+                <span class="close-modal">&times;</span>
+                <div id="modalContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Theme toggle functionality
+            const themeToggle = document.getElementById('themeToggle');
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            themeToggle.checked = savedTheme === 'dark';
+            
+            themeToggle.addEventListener('change', function() {
+                const newTheme = this.checked ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+
+            // Logout functionality
+            const logoutLink = document.getElementById('logoutLink');
+            const logoutModal = document.getElementById('logoutModal');
+            const cancelLogout = document.getElementById('cancelLogout');
+            const confirmLogout = document.getElementById('confirmLogout');
+            
+            logoutLink.addEventListener('click', function(event) {
+                event.preventDefault();
+                logoutModal.classList.add('show');
+            });
+            
+            cancelLogout.addEventListener('click', function() {
+                logoutModal.classList.remove('show');
+            });
+            
+            confirmLogout.addEventListener('click', function() {
+                const notification = document.getElementById('notification');
+                notification.classList.add('show');
+                logoutModal.classList.remove('show');
+                setTimeout(() => {
+                    window.location.href = "{{ url_for('logout') }}";
+                }, 1000);
+            });
+
+            // Filter and search functionality
+            document.querySelectorAll('.filter-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    applyFilters();
+                });
+            });
+            
+            document.getElementById('searchInput').addEventListener('input', applyFilters);
+            
+            function applyFilters() {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const activeCategory = document.querySelector('.filter-btn.active').dataset.category;
+                
+                document.querySelectorAll('.place-card').forEach(card => {
+                    const title = card.querySelector('.place-title').textContent.toLowerCase();
+                    const description = card.querySelector('.place-description').textContent.toLowerCase();
+                    const category = card.dataset.category;
+                    const categoryMatch = activeCategory === 'all' || category === activeCategory;
+                    const searchMatch = title.includes(searchTerm) || description.includes(searchTerm);
+                    card.style.display = (categoryMatch && searchMatch) ? 'block' : 'none';
+                });
+            }
+
+            // Modal functionality for place cards
+            const modal = document.getElementById('placeModal');
+            const closeModal = document.querySelector('.close-modal');
+            
+            document.querySelectorAll('.place-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const modalContent = document.getElementById('modalContent');
+                    modalContent.innerHTML = this.innerHTML;
+                    modal.classList.add('show-modal');
+                });
+            });
+            
+            closeModal.addEventListener('click', function() {
+                modal.classList.remove('show-modal');
+            });
+            
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    modal.classList.remove('show-modal');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

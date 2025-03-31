@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to TravelMate</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='travelmatelogo.png') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+</head>
+<body>
+    <div class="main-content">
+        <div class="container">
+            <h1 class="heading-section">Welcome to TravelMate!</h1>
+            <p class="subtitle">Your personalized guide to Tanay, Rizal</p>
+
+            <div class="cta-buttons">
+                <div class="cta-section">
+                    <p class="cta-text">Are you a new user?</p>
+                    <a href="{{ url_for('signup_page') }}" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Sign Up Now
+                    </a>
+                </div>
+
+                <div class="cta-section">
+                    <p class="cta-text">Already have an account?</p>
+                    <a href="{{ url_for('login_page') }}" class="btn btn-secondary">
+                        <i class="fas fa-sign-in-alt"></i> Login Now
+                    </a>
+                </div>
+            </div>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+</body>
+</html>

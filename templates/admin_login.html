@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | TravelMate</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='travelmatelogo.png') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_login.css') }}">
+</head>
+<body>
+    <!-- Add notification div -->
+    <div id="notification" class="notification">
+        <div class="loading-spinner"></div>
+        <span id="notification-message">Logging in...</span>
+    </div>
+
+    <div class="login-container"> <!-- Fixed: Removed extra closing bracket -->
+        <h1>Admin Login</h1>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('admin_login') }}">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        
+        <!-- Add back button -->
+        <div class="text-center">
+            <a href="{{ url_for('login_page') }}" class="back-button">
+                <i class="fas fa-arrow-left"></i> Back to Login
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Handle flashed messages
+            const messages = JSON.parse('{{ get_flashed_messages(with_categories=true) | tojson | safe }}');
+            
+            if (messages.length > 0) {
+                const [category, message] = messages[0];
+                const notification = document.getElementById('notification');
+                
+                // Update content
+                document.getElementById('notification-message').textContent = message;
+                
+                // Show notification
+                notification.classList.add('show');
+                
+                // Auto-hide for success
+                if (category === 'success') {
+                    setTimeout(() => {
+                        notification.classList.remove('show');
+                        setTimeout(() => {
+                            window.location.href = "{{ url_for('admin_dashboard') }}";
+                        }, 300);
+                    }, 1500);
+                } else {
+                    // Auto-hide after 3 seconds for other messages
+                    setTimeout(() => {
+                        notification.classList.remove('show');
+                    }, 3000);
+                }
+            }
+            
+            // Add loading effect on login button click
+            document.querySelector('button[type="submit"]').addEventListener('click', function(event) {
+                const notification = document.getElementById('notification');
+                document.getElementById('notification-message').textContent = "Logging in...";
+                notification.classList.add('show');
+            });
+        });
+    </script>
+</body>
+</html>

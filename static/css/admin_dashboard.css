@@ -1,0 +1,258 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    margin: 0;
+    padding: 1rem; /* Reduced padding */
+}
+
+.container {
+    max-width: 95%; /* Changed from 1200px to 95% */
+    margin: 0 auto;
+    background: white;
+    padding: 1.5rem; /* Reduced padding */
+}
+
+.dynamic-content {
+    width: 100%;
+    margin-bottom: 2rem;
+    padding: 1rem; /* Reduced padding */
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 1.5rem;
+}
+
+.stats {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 20px;
+    margin-bottom: 2rem;
+}
+
+.stat-box {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem 3rem;
+    text-align: center;
+    flex: 0 1 250px;
+    transition: all 0.3s ease;
+}
+
+.stat-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px var(--box-shadow-color);
+}
+
+.stat-box h3 {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+}
+
+.stat-box p {
+    color: var(--accent-color);
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px var(--box-shadow-color);
+    margin: 0; /* Remove margins */
+    font-size: 0.9rem; /* Slightly smaller font */
+}
+
+th, td {
+    padding: 0.75rem 0.5rem; /* Reduced padding */
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background: #f8f9fa;
+    background: var(--accent-color);
+    color: white;
+    padding: 1rem;
+    font-weight: 600;
+}
+
+td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+tr:hover td {
+    background: var(--date-bg);
+}
+
+tr:hover {
+    background: #f1f1f1;
+}
+
+a {
+    color: #4CAF50;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+button {
+    padding: 0.5rem 1rem;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #c82333;
+}
+
+/* Audit Logs Styles */
+.audit-logs {
+    margin-top: 1rem; /* Reduced margin */
+    max-height: 400px; /* Reduced from 500px */
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+}
+
+.audit-logs table {
+    margin: 0;
+    width: 100%;
+}
+
+.audit-logs td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    padding: 1rem;
+}
+
+.audit-logs tr:nth-child(even) {
+    background-color: var(--date-bg);
+}
+
+.audit-logs .action-cell {
+    font-weight: 600;
+    color: var(--accent-color);
+}
+
+/* Action buttons */
+.action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    font-size: 0.85rem; /* Made font slightly smaller */
+}
+
+.action-buttons form {
+    margin: 0;
+    display: inline;
+}
+
+.edit-btn, .delete-btn {
+    background: none;
+    border: none;
+    padding: 2px;
+    margin: 0;
+    color: var(--accent-color);
+    font-weight: normal;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 0.85rem; /* Made font slightly smaller */
+}
+
+.delete-btn {
+    color: var(--error-color);
+}
+
+.edit-btn:hover, .delete-btn:hover {
+    text-decoration: underline;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Remove unwanted styles */
+.edit-btn, .delete-btn {
+    min-width: unset;
+    display: inline;
+}
+
+/* Print button styles */
+.section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.print-btn {
+    background: var(--accent-color);
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.print-btn:hover {
+    background: var(--accent-color-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px var(--box-shadow-color);
+}
+
+.print-btn i {
+    font-size: 1rem;
+}
+
+/* Make tables responsive */
+@media (max-width: 1024px) {
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 768px) {
+    .stats {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .stat-box {
+        width: 100%;
+        max-width: 300px;
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 1440px) {
+    .container {
+        max-width: 98%;
+    }
+}

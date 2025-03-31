@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit User | Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/edit_user.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='travelmatelogo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+    <!-- Admin Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-brand">
+                <a href="/admin/dashboard" class="navbar-title">
+                    <img src="{{ url_for('static', filename='travelmatelogo.png') }}" alt="TravelMate Logo">
+                </a>
+            </div>
+            
+            <div class="date-display">
+                <div id="date-time" class="current-date"></div>
+            </div>
+            
+            <div class="navbar-menu">
+                <div class="theme-toggle-container">
+                    <span class="theme-icon">☀️</span>
+                    <label class="theme-toggle">
+                        <input type="checkbox" id="themeToggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span class="theme-icon">🌙</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Edit User Profile</h1>
+        <form method="POST" action="{{ url_for('edit_user', user_id=user.id) }}">
+            <div class="form-group">
+                <label for="first_name">First Name:</label>
+                <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" required 
+                    placeholder="Enter first name">
+            </div>
+            <div class="form-group">
+                <label for="last_name">Last Name:</label>
+                <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" required 
+                    placeholder="Enter last name">
+            </div>
+            <div class="form-group">
+                <label for="email">Email Address:</label>
+                <input type="email" id="email" name="email" value="{{ user.email }}" required 
+                    placeholder="Enter email address">
+            </div>
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="is_active" name="is_active" value="1" {% if user.is_active %}checked{% endif %}>
+                    <label for="is_active">User Account Active</label>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit">Save Changes</button>
+                <a href="{{ url_for('admin_dashboard') }}" class="cancel-btn">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Date display
+        window.addEventListener("load", () => {
+            clock();
+            function clock() {
+                const today = new Date();
+                const hours = today.getHours();
+                const minutes = today.getMinutes();
+                const seconds = today.getSeconds();
+                const hour = hours < 10 ? "0" + hours : hours;
+                const minute = minutes < 10 ? "0" + minutes : minutes;
+                const second = seconds < 10 ? "0" + seconds : seconds;
+                const hourTime = hour > 12 ? hour - 12 : hour;
+                const ampm = hour < 12 ? "AM" : "PM";
+                const month = today.getMonth();
+                const year = today.getFullYear();
+                const day = today.getDate();
+                const monthList = [
+                    "January", "February", "March", "April", "May", "June",
+                    "July", "August", "September", "October", "November", "December"
+                ];
+                const date = monthList[month] + " " + day + ", " + year;
+                const time = hourTime + ":" + minute + ":" + second + ampm;
+                const dateTime = date + " - "+ time;
+                document.getElementById("date-time").innerHTML = dateTime;
+                setTimeout(clock, 1000);
+            }
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.checked = savedTheme === 'dark';
+        
+        themeToggle.addEventListener('change', function() {
+            const newTheme = this.checked ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+    </script>
+</body>
+</html>

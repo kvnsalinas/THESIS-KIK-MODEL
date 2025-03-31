@@ -1,0 +1,153 @@
+/* Page Content Styles */
+html, body {
+    font-family: 'Lato', sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden; /* Prevent scrolling */
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../places/tanay.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    font-family: 'Lato', sans-serif;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 20px;
+}
+
+.login-wrap {
+    background: rgba(255, 255, 255, 0.95);  /* Changed from 0.15 to 0.95 for more opacity */
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 400px;
+    padding: 25px;
+    text-align: center;
+    margin: 0 20px;
+    animation: fadeIn 0.5s ease-out;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    transition: all 0.3s ease;
+}
+
+.notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background-color: #28a745;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    z-index: 1000;
+    max-width: 80%;
+    width: auto;
+    text-align: center;
+    display: none;
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s linear infinite;
+    margin-right: 10px;
+}
+
+h1 {
+    font-size: 24px;
+    color: #333;  /* Changed from white to dark gray */
+    text-shadow: none;  /* Removed text shadow */
+    margin-bottom: 5px;
+}
+
+.text-muted {
+    color: #666;  /* Changed from rgba(255, 255, 255, 0.9) to dark gray */
+    text-shadow: none;  /* Removed text shadow */
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.form-control {
+    width: 90%;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin: 12px auto;
+    display: block;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.btn-primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(to right, #28a745, #218838);
+    border: none;
+    color: #ffffff;
+    padding: 12px 15px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 90%;
+    margin: 12px auto;
+    transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:hover {
+    background: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.text-center a {
+    color: #28a745;
+    text-decoration: none;
+}
+
+.text-center a:hover {
+    text-decoration: underline;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}

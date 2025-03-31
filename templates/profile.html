@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - TravelMate</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='travelmatelogo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+</head>
+<body>
+    <!-- Updated Navbar Structure with proper Flask routes -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-brand">
+                <a href="/main" class="navbar-title">
+                    <img src="{{ url_for('static', filename='travelmatelogo.png') }}" alt="TravelMate Logo">
+                </a>
+            </div>
+            
+            <div class="date-display">
+                <div id="date-time" class="current-date"></div>
+            </div>
+            
+            <div class="navbar-menu">
+                <div class="navbar-links">
+                    <a href="{{ url_for('main_page') }}" class="navbar-link">Home</a>
+                    <a href="{{ url_for('profile_page') }}" class="navbar-link active">Profile</a>
+                    <a href="#" class="navbar-link" id="logoutLink">Logout</a>
+                </div>
+                <div class="theme-toggle-container">
+                    <span class="theme-icon">☀️</span>
+                    <label class="theme-toggle">
+                        <input type="checkbox" id="themeToggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span class="theme-icon">🌙</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Notification Element -->
+    <div id="notification" class="notification">
+        <div class="loading-spinner"></div>
+        <span>Logging out...</span>
+    </div>
+    
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="modal-overlay">
+        <div class="modal">
+            <h3 class="modal-title">Logout Confirmation</h3>
+            <p class="modal-message">Are you sure you want to logout from your TravelMate account?</p>
+            <div class="modal-buttons">
+                <button id="cancelLogout" class="modal-btn cancel">Cancel</button>
+                <button id="confirmLogout" class="modal-btn confirm">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Profile Header -->
+        <h1>My Profile</h1>
+
+        <!-- User Information -->
+        <div class="profile-info">
+            {% if user %}
+                <p><strong>First Name:</strong> {{ user.first_name if user.first_name else 'Not provided' }}</p>
+                <p><strong>Last Name:</strong> {{ user.last_name if user.last_name else 'Not provided' }}</p>
+                <p><strong>Username:</strong> {{ user.username if user.username else 'Not provided' }}</p>
+                <p><strong>Email:</strong> {{ user.email if user.email else 'Not provided' }}</p>
+                <p><strong>Member Since:</strong> {{ user.joined_date if user.joined_date else 'Not available' }}</p>
+                <p><strong>Last Login:</strong> {{ user.last_login if user.last_login else 'Not available' }}</p>
+            {% else %}
+                <p class="no-data">User information not available.</p>
+            {% endif %}
+        </div>
+
+        <!-- Preferences Section -->
+        <div>
+            <div class="section-title">My Preferences</div>
+            {% if user.preferences %}
+            <ul class="preferences-list">
+                {% for preference in user.preferences %}
+                <li>{{ preference }}</li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="no-data">No preferences added yet.</p>
+            <a href="{{ url_for('preferences_page') }}" class="btn-primary">Add Preferences</a>
+            {% endif %}
+        </div>
+
+        <!-- Back Button -->
+        <a href="{{ url_for('main_page') }}" class="back-button">Back to Main Page</a>
+    </div>
+    
+    <script>
+        // Ensure all DOM content is loaded before running any script
+        document.addEventListener('DOMContentLoaded', function() {
+            // One-time migration from old theme setting
+            if (localStorage.getItem('darkTheme') !== null && localStorage.getItem('theme') === null) {
+                const isDark = localStorage.getItem('darkTheme') === 'true';
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                // Remove the old setting
+                localStorage.removeItem('darkTheme');
+            }
+            
+            // Theme toggle functionality
+            const themeToggle = document.getElementById('themeToggle');
+            
+            // Check for saved theme preference
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            themeToggle.checked = savedTheme === 'dark';
+            
+            // Theme toggle event listener
+            themeToggle.addEventListener('change', function() {
+                const newTheme = this.checked ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+            
+            // Logout functionality
+            const logoutLink = document.getElementById('logoutLink');
+            const logoutModal = document.getElementById('logoutModal');
+            const cancelLogout = document.getElementById('cancelLogout');
+            const confirmLogout = document.getElementById('confirmLogout');
+            
+            // Show logout confirmation when clicking logout
+            logoutLink.addEventListener('click', function(event) {
+                event.preventDefault();
+                logoutModal.classList.add('show');
+            });
+            
+            // Cancel logout
+            cancelLogout.addEventListener('click', function() {
+                logoutModal.classList.remove('show');
+            });
+            
+            // Confirm logout
+            confirmLogout.addEventListener('click', function() {
+                // Show notification with spinner
+                const notification = document.getElementById('notification');
+                notification.classList.add('show');
+                
+                // Hide modal
+                logoutModal.classList.remove('show');
+                
+                // Simulate logout process
+                setTimeout(() => {
+                    window.location.href = "{{ url_for('logout') }}";
+                }, 1000);
+            });
+            
+            // Close modal when clicking outside
+            logoutModal.addEventListener('click', function(event) {
+                if (event.target === logoutModal) {
+                    logoutModal.classList.remove('show');
+                }
+            });
+
+            // Add the clock update function
+            window.addEventListener("load", () => {
+                clock();
+                function clock() {
+                    const today = new Date();
+
+                    // get time components
+                    const hours = today.getHours();
+                    const minutes = today.getMinutes();
+                    const seconds = today.getSeconds();
+
+                    //add '0' to hour, minute & second when they are less 10
+                    const hour = hours < 10 ? "0" + hours : hours;
+                    const minute = minutes < 10 ? "0" + minutes : minutes;
+                    const second = seconds < 10 ? "0" + seconds : seconds;
+
+                    //make clock a 12-hour time clock
+                    const hourTime = hour > 12 ? hour - 12 : hour;
+
+                    //assigning 'am' or 'pm' to indicate time of the day
+                    const ampm = hour < 12 ? "AM" : "PM";
+
+                    // get date components
+                    const month = today.getMonth();
+                    const year = today.getFullYear();
+                    const day = today.getDate();
+
+                    //declaring a list of all months in a year
+                    const monthList = [
+                        "January", "February", "March", "April", "May", "June",
+                        "July", "August", "September", "October", "November", "December"
+                    ];
+
+                    //get current date and time
+                    const date = monthList[month] + " " + day + ", " + year;
+                    const time = hourTime + ":" + minute + ":" + second + ampm;
+
+                    //combine current date and time
+                    const dateTime = date + " - "+ time;
+
+                    //print current date and time to the DOM
+                    document.getElementById("date-time").innerHTML = dateTime;
+                    setTimeout(clock, 1000);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

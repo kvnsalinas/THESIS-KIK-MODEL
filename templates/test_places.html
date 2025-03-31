@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Places</title>
+</head>
+<body>
+    <h1>Test Places</h1>
+    <div class="places-grid" id="placesGrid">
+        {% for place, picture in places %}
+        <div class="place-card" data-category="{{ place.attributes }}">
+            <div class="place-image">
+                <img src="{{ picture.picture if picture.picture else '/static/places/default.jpg' }}" alt="{{ place.place_name }}" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <div class="place-info">
+                <h3 class="place-title">{{ place.place_name }}</h3>
+                <span class="place-category">{{ place.attributes }}</span>
+                <p class="place-description">{{ place.description }}</p>
+                <div class="place-details">
+                    <p>⭐ 4.6/5 rating</p>
+                    <p>💲 Entrance fee: ₱100</p>
+                    <p>🕒 Open: 6:00 AM - 5:00 PM</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

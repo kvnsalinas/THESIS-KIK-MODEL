@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='travelmatelogo.png') }}">
+    <title>Welcome to TravelMate</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+    <!-- Updated Navbar Structure -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-brand">
+                <a href="/main" class="navbar-title">
+                    <img src="{{ url_for('static', filename='travelmatelogo.png') }}" alt="TravelMate Logo">
+                </a>
+            </div>
+            
+            <div class="date-display">
+                <div id="date-time" class="current-date"></div>
+            </div>
+            
+            <div class="navbar-menu">
+                <div class="navbar-links">
+                    <a href="/main" class="navbar-link active">Home</a>
+                    <a href="/profile" class="navbar-link">Profile</a>
+                    <a href="#" class="navbar-link" id="logoutLink">Logout</a>
+                </div>
+                <div class="theme-toggle-container">
+                    <span class="theme-icon">☀️</span>
+                    <label class="theme-toggle">
+                        <input type="checkbox" id="themeToggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span class="theme-icon">🌙</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Notification Element -->
+    <div id="notification" class="notification">
+        <div class="loading-spinner"></div>
+        <span>Generating personalized recommendations for you!</span>
+    </div>
+    
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="modal-overlay">
+        <div class="modal">
+            <h3 class="modal-title">Logout Confirmation</h3>
+            <p class="modal-message">Are you sure you want to logout from your TravelMate account?</p>
+            <div class="modal-buttons">
+                <button id="cancelLogout" class="modal-btn cancel">Cancel</button>
+                <button id="confirmLogout" class="modal-btn confirm">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="hero-container">
+            <div class="welcome-section">
+                <h1>Welcome to TravelMate, {{ username }}!</h1>
+                <p>Discover the hidden gems and breathtaking experiences waiting for you in Tanay, Rizal.</p>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="/preferences" class="btn" id="preferencesBtn">
+                    <i class="fas fa-sliders-h"></i>
+                    Set Your Preferences
+                </a>
+                <a href="/recommend" class="btn" id="recommendBtn">
+                    <i class="fas fa-compass"></i>
+                    Get Recommendations
+                </a>
+                <a href="/places" class="btn" id="placesBtn">
+                    <i class="fas fa-map-marker-alt"></i>
+                    Explore Places
+                </a>
+            </div>
+        </div>
+
+        <!-- Recommendations Preview Section -->
+        <div class="dynamic-content">
+            <h2 class="section-title">Top Recommended Places for You</h2>
+            <div class="cards-container" id="recommendations-container"></div>
+        </div>
+
+        <!-- Trending Section -->
+        <div class="dynamic-content">
+            <h2 class="section-title">Trending in Tanay</h2>
+            <div class="cards-container" id="trending-container"></div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About TravelMate</h3>
+                <p>Your trusted companion for discovering the hidden gems and breathtaking experiences in Tanay, Rizal.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="/main">Home</a></li>
+                    <li><a href="/places">Explore Places</a></li>
+                    <li><a href="/preferences">Preferences</a></li>
+                    <li><a href="/profile">Profile</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <p>Email: info@travelmate.com</p>
+                <p>Phone: (02) 8123-4567</p>
+                <p>Address: Tanay, Rizal, Philippines</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 TravelMate. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Ensure all DOM content is loaded before running any script
+        document.addEventListener('DOMContentLoaded', function() {
+            // One-time migration from old theme setting
+            if (localStorage.getItem('darkTheme') !== null && localStorage.getItem('theme') === null) {
+                const isDark = localStorage.getItem('darkTheme') === 'true';
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                // Remove the old setting
+                localStorage.removeItem('darkTheme');
+            }
+            
+            window.addEventListener("load", () => {
+                clock();
+                function clock() {
+                    const today = new Date();
+
+                    // get time components
+                    const hours = today.getHours();
+                    const minutes = today.getMinutes();
+                    const seconds = today.getSeconds();
+
+                    //add '0' to hour, minute & second when they are less 10
+                    const hour = hours < 10 ? "0" + hours : hours;
+                    const minute = minutes < 10 ? "0" + minutes : minutes;
+                    const second = seconds < 10 ? "0" + seconds : seconds;
+
+                    //make clock a 12-hour time clock
+                    const hourTime = hour > 12 ? hour - 12 : hour;
+
+                    //assigning 'am' or 'pm' to indicate time of the day
+                    const ampm = hour < 12 ? "AM" : "PM";
+
+                    // get date components
+                    const month = today.getMonth();
+                    const year = today.getFullYear();
+                    const day = today.getDate();
+
+                    //declaring a list of all months in a year
+                    const monthList = [
+                        "January", "February", "March", "April", "May", "June",
+                        "July", "August", "September", "October", "November", "December"
+                    ];
+
+                    //get current date and time
+                    const date = monthList[month] + " " + day + ", " + year;
+                    const time = hourTime + ":" + minute + ":" + second + ampm;
+
+                    //combine current date and time
+                    const dateTime = date + " - "+ time;
+
+                    //print current date and time to the DOM
+                    document.getElementById("date-time").innerHTML = dateTime;
+                    setTimeout(clock, 1000);
+                }
+            });
+
+            // Add active class to current page link
+            document.querySelectorAll('.navbar-link').forEach(link => {
+                if (link.href === window.location.href) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Theme toggle functionality
+            const themeToggle = document.getElementById('themeToggle');
+            
+            // Check for saved theme preference
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            themeToggle.checked = savedTheme === 'dark';
+            
+            // Theme toggle event listener
+            themeToggle.addEventListener('change', function() {
+                const newTheme = this.checked ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+            
+            // Logout functionality
+            const logoutLink = document.getElementById('logoutLink');
+            const logoutModal = document.getElementById('logoutModal');
+            const cancelLogout = document.getElementById('cancelLogout');
+            const confirmLogout = document.getElementById('confirmLogout');
+            
+            // Show logout confirmation when clicking logout
+            logoutLink.addEventListener('click', function(event) {
+                event.preventDefault();
+                logoutModal.classList.add('show');
+            });
+            
+            // Cancel logout
+            cancelLogout.addEventListener('click', function() {
+                logoutModal.classList.remove('show');
+            });
+            
+            // Confirm logout
+            confirmLogout.addEventListener('click', function() {
+                // Show notification with spinner
+                const notification = document.getElementById('notification');
+                notification.querySelector('span').textContent = "Logging out...";
+                notification.classList.add('show');
+                
+                // Hide modal
+                logoutModal.classList.remove('show');
+                
+                // Simulate logout process
+                setTimeout(() => {
+                    window.location.href = '/logout';
+                }, 1000);
+            });
+            
+            // Close modal when clicking outside
+            logoutModal.addEventListener('click', function(event) {
+                if (event.target === logoutModal) {
+                    logoutModal.classList.remove('show');
+                }
+            });
+            
+            // Button click handlers
+            // Preferences button
+            document.getElementById('preferencesBtn').addEventListener('click', function(event) {
+                event.preventDefault();
+                console.log("Add Preferences button clicked");
+                window.location.href = this.getAttribute('href');
+            });
+            
+            // Recommendation button
+            document.getElementById('recommendBtn').addEventListener('click', function(event) {
+                event.preventDefault();
+                console.log("Start Recommendations button clicked");
+                
+                // Show notification
+                const notification = document.getElementById('notification');
+                notification.classList.add('show');
+                
+                // Navigate after delay
+                const href = this.getAttribute('href');
+                setTimeout(() => window.location.href = href, 1500);
+            });
+            
+            // Places button
+            document.getElementById('placesBtn').addEventListener('click', function(event) {
+                event.preventDefault();
+                console.log("All Places button clicked");
+                window.location.href = this.getAttribute('href');
+            });
+            
+            // Load recommendations preview data
+            const recommendationsData = [
+                {
+                    id: 1,
+                    title: "Masungi Georeserve",
+                    description: "Conservation area with hiking trails, rope courses and limestone formations.",
+                    image: "/static/places/masungi.jpg",
+                    type: "Nature",
+                    match: "97% match"
+                },
+                {
+                    id: 2,
+                    title: "Daranak Falls",
+                    description: "Beautiful cascading waterfall with crystal clear waters for swimming.",
+                    image: "/static/places/daranak.jpg",
+                    type: "Waterfall",
+                    match: "92% match"
+                },
+                {
+                    id: 3,
+                    title: "Mt. Daraitan",
+                    description: "Mountain hiking trail with panoramic views and natural river pools.",
+                    image: "/static/places/daraitan.jpg",
+                    type: "Hiking",
+                    match: "89% match"
+                },
+                {
+                    id: 7,
+                    title: "Tinipak River",
+                    description: "Crystal clear river with remarkable rock formations and natural pools.",
+                    image: "/static/places/tinipak.jpg",
+                    type: "River",
+                    match: "85% match"
+                }
+            ];
+            
+            // Load trending places data
+            const trendingData = [
+                {
+                    id: 4,
+                    title: "Calinawan Cave",
+                    description: "Explore underground chambers and fascinating limestone formations.",
+                    image: "/static/places/calinawan.jpg",
+                    type: "Adventure",
+                    event: "Night Tour - Mar 15"
+                },
+                {
+                    id: 5,
+                    title: "Tanay Highlands Festival",
+                    description: "Annual cultural festival celebrating local heritage and cuisine.",
+                    image: "/static/places/highlands.jpg",
+                    type: "Event",
+                    event: "Mar 20-22"
+                },
+                {
+                    id: 6,
+                    title: "Ten Cents to Heaven",
+                    description: "Campsite with glamping facilities and breathtaking mountain views.",
+                    image: "/static/places/tencents.jpg",
+                    type: "Camping",
+                    event: "Weekend Rates"
+                },
+                {
+                    id: 8,
+                    title: "Parola Lighthouse",
+                    description: "Historic lighthouse offering panoramic views of Laguna de Bay.",
+                    image: "/static/places/parola.jpg",
+                    type: "Landmark",
+                    event: "New Photo Spot"
+                }
+            ];
+            
+            // Populate recommendation cards
+            const recommendationsContainer = document.getElementById('recommendations-container');
+            recommendationsData.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <img src="${item.image}" alt="${item.title}" class="card-img">
+                    <div class="card-content">
+                        <h3 class="card-title">${item.title}</h3>
+                        <p class="card-description">${item.description}</p>
+                        <div class="meta-info">
+                            <span class="place-type">${item.type}</span>
+                            <span class="event-date">${item.match}</span>
+                        </div>
+                    </div>
+                `;
+                recommendationsContainer.appendChild(card);
+            });
+            
+            // Populate trending cards
+            const trendingContainer = document.getElementById('trending-container');
+            trendingData.forEach((item) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.style.position = 'relative';
+                
+                card.innerHTML = `
+                    <img src="${item.image}" alt="${item.title}" class="card-img">
+                    <div class="card-content">
+                        <h3 class="card-title">${item.title}</h3>
+                        <p class="card-description">${item.description}</p>
+                        <div class="meta-info">
+                            <span class="place-type">${item.type}</span>
+                            <span class="event-date">${item.event}</span>
+                        </div>
+                    </div>
+                `;
+                trendingContainer.appendChild(card);
+            });
+
+            // Top searches data
+            const topSearchesData = [
+                { term: "Masungi Georeserve", count: 1243 },
+                { term: "Daranak Falls", count: 987 },
+                { term: "Mt. Daraitan", count: 856 },
+                { term: "Tinipak River", count: 742 },
+                { term: "Adventure Spots", count: 635 },
+                { term: "Camping Sites", count: 589 },
+                { term: "Waterfalls", count: 534 },
+                { term: "Mountain Hiking", count: 467 }
+            ];
+
+            // Populate top searches
+            const searchMetricsContainer = document.getElementById('searchMetrics');
+            topSearchesData.forEach(item => {
+                const searchTag = document.createElement('div');
+                searchTag.className = 'search-tag';
+                searchTag.innerHTML = `
+                    <span class="search-text">${item.term}</span>
+                    <span class="search-count">${item.count}</span>
+                `;
+                searchTag.addEventListener('click', () => {
+                    const notification = document.getElementById('notification');
+                    notification.querySelector('span').textContent = `Showing results for "${item.term}"`;
+                    notification.classList.add('show');
+                    setTimeout(() => notification.classList.remove('show'), 2000);
+                });
+                searchMetricsContainer.appendChild(searchTag);
+            });
+            
+            // Add click event to all cards
+            document.querySelectorAll('.card').forEach(card => {
+                card.addEventListener('click', function() {
+                    // This would typically navigate to the detail page
+                    console.log("Card clicked");
+                    // For demonstration, show notification
+                    const notification = document.getElementById('notification');
+                    notification.querySelector('span').textContent = "Loading place details...";
+                    notification.classList.add('show');
+                    
+                    // Hide notification after delay
+                    setTimeout(() => notification.classList.remove('show'), 1500);
+                });
+            });
+
+            // Add search functionality
+            const searchInput = document.getElementById('searchInput');
+            let searchTimeout;
+
+            searchInput.addEventListener('input', function(e) {
+                const query = e.target.value.toLowerCase();
+                const notification = document.getElementById('notification');
+                
+                // Clear previous timeout
+                clearTimeout(searchTimeout);
+                
+                // Only show notification if user has typed something
+                if (query.length > 0) {
+                    // Add delay to reduce notifications while typing
+                    searchTimeout = setTimeout(() => {
+                        notification.querySelector('span').textContent = `Searching for "${query}"...`;
+                        notification.classList.add('show');
+                        
+                        setTimeout(() => {
+                            notification.classList.remove('show');
+                        }, 1500);
+                    }, 500);
+                }
+            });            
+            // Make search tags clickable to populate search input document.querySelectorAll('.search-tag').forEach(tag => {                tag.addEventListener('click', () => {                    const searchText = tag.querySelector('.search-text').textContent;                    const searchInput = document.getElementById('searchInput');
+                    searchInput.value = searchText;
+                    searchInput.focus();
+                    
+                    // Trigger search
+                    const event = new Event('input');
+                    searchInput.dispatchEvent(event);
+                });
+
+            // Animate statistics numbers
+            function animateStats() {
+                const stats = document.querySelectorAll('.stat-number');
+                
+                stats.forEach(stat => {
+                    const target = parseInt(stat.getAttribute('data-target'));
+                    const duration = 2000; // 2 seconds
+                    const step = target / (duration / 16); // 60fps
+                    let current = 0;
+                    
+                    const updateNumber = () => {
+                        current += step;
+                        if (current < target) {
+                            stat.textContent = Math.floor(current);
+                            requestAnimationFrame(updateNumber);
+                        } else {
+                            stat.textContent = target;
+                        }
+                    };
+                    
+                    updateNumber();
+                });
+            }
+
+            // Trigger animation when section is in view
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animateStats();
+                        observer.unobserve(entry.target);
+                    }
+                });
+            });
+
+            observer.observe(document.querySelector('.stats-section'));
+    </script>
+</body>
+</html>

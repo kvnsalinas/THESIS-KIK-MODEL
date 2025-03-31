@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | TravelMate</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='travelmatelogo.png') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+    <!-- ONLY ONE Notification element - Centered -->
+    <div id="notification" class="notification">
+        <div class="loading-spinner"></div>
+        <span id="notification-message">Logging in...</span>
+    </div>
+
+    <!-- Main content wrapper -->
+    <div class="main-content">
+        <!-- Centered Login Container -->
+        <div class="login-wrap">
+            <h1>Welcome Back!</h1>
+            <p class="text-muted">Log in to continue exploring the best experiences with TravelMate.</p>
+
+            <!-- Login Form -->
+            <form action="{{ url_for('login') }}" method="POST">
+                <input type="text" name="username" class="form-control" placeholder="Username" required>
+                <input type="password" name="password" class="form-control" placeholder="Password" required>
+                <button type="submit" class="btn-primary" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i> Log In
+                </button>
+            </form>
+            <p class="text-center">
+                Don't have an account? <a href="{{ url_for('signup_page') }}">Sign Up</a>
+            </p>
+            <!-- Add this admin login button -->
+            <div class="text-center" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
+                <a href="{{ url_for('admin_login') }}" class="btn-primary" style="text-decoration: none; display: inline-block; width: auto; padding: 8px 20px; background: linear-gradient(to right, #007bff, #0056b3); color: #ffffff; font-weight: bold;">
+                    <i class="fas fa-lock"></i> Admin Login
+                </a>
+            </div>
+            <!-- Add back to home button -->
+            <div class="text-center" style="margin-top: 10px;">
+                <a href="{{ url_for('index') }}" class="btn-primary" style="text-decoration: none; display: inline-block; width: auto; padding: 8px 20px; background: linear-gradient(to right, #dc3545, #c82333); color: #ffffff; font-weight: bold;">
+                    <i class="fas fa-home"></i> Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Handle flashed messages
+            const messages = JSON.parse('{{ get_flashed_messages(with_categories=true) | tojson | safe }}');
+            
+            if (messages.length > 0) {
+                const [category, message] = messages[0];
+                const notification = document.getElementById('notification');
+                
+                // Update content
+                document.getElementById('notification-message').textContent = message;
+                
+                // Show notification
+                notification.classList.add('show');
+                
+                // Auto-hide for success
+                if (category === 'success') {
+                    setTimeout(() => {
+                        notification.classList.remove('show');
+                        setTimeout(() => {
+                            window.location.href = "{{ url_for('main_page') }}";
+                        }, 300);
+                    }, 1500);
+                } else {
+                    // Auto-hide after 3 seconds for other messages
+                    setTimeout(() => {
+                        notification.classList.remove('show');
+                    }, 3000);
+                }
+            }
+            
+            // Add loading effect on login button click
+            document.getElementById('loginBtn').addEventListener('click', function(event) {
+                // Don't prevent default as we want the form to submit
+                
+                // Show notification with login message
+                const notification = document.getElementById('notification');
+                document.getElementById('notification-message').textContent = "Logging in...";
+                notification.classList.add('show');
+            });
+        });
+    </script>
+</body>
+</html>

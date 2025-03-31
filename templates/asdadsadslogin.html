@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | TravelMate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Navbar Styles */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            border-bottom: 1px solid #eee;
+            padding: 1rem 20px;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .navbar-container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .navbar-title {
+            font-size: 1.5rem;
+            color: #4caf50;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        
+        .navbar-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        /* Page Content Styles */
+        html, body {
+            font-family: 'Lato', sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden; /* Prevent scrolling */
+        }
+        
+        body {
+            background: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-top: 70px; /* Space for navbar */
+        }
+        
+        .login-wrap {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            padding: 25px;
+            text-align: center;
+            margin: 0 20px; /* Responsive margin */
+            animation: fadeIn 0.5s ease-out;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto; /* Allow container to scroll if needed */
+        }
+
+        /* Notification styles - Single Centered Notification */
+        .notification {
+            position: fixed;
+            top: 70px; /* Below navbar */
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background-color: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            z-index: 1000;
+            max-width: 80%;
+            width: auto;
+            text-align: center;
+            display: none;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        /* Form Styles */
+        h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .text-muted {
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .form-control {
+            width: 90%;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin: 12px auto;
+            display: block;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        .btn-primary {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: linear-gradient(to right, #28a745, #218838);
+            border: none;
+            color: #ffffff;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 90%;
+            margin: 12px auto;
+            transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .text-center a {
+            color: #28a745;
+            text-decoration: none;
+        }
+        
+        .text-center a:hover {
+            text-decoration: underline;
+        }
+
+        /* Animation Fixes */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="{{ url_for('index') }}" class="navbar-title">TravelMate</a>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="container">
+            <h2 class="heading-section">Welcome Back!</h2>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('login') }}" method="POST">
+                <div class="form-group">
+                    <input type="text" name="username" class="form-control" placeholder="Username" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" name="password" class="form-control" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn-primary">Log In</button>
+            </form>
+
+            <p class="text-center mt-3">
+                Don't have an account? <a href="{{ url_for('index') }}">Sign Up</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

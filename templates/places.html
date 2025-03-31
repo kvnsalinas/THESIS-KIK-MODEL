@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <title>Places in Tanay - TravelMate</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='travelmatelogo.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/places.css') }}">
+  <style>
+      :root {
+        --bg-color: #f9f9f9;
+        --card-bg: #fff;
+        --text-color: #333;
+        --text-secondary: #666;
+        --primary-color: #4caf50;
+        --primary-hover: #45a049;
+        --nav-bg: white;
+        --border-color: #eee;
+        --tag-bg: #e0e0e0;
+        --shadow-color: rgba(0, 0, 0, 0.1);
+        --notification-bg: #28a745;
+        --notification-text: white;
+        --error-color: #dc3545;
+      }
+      
+      [data-theme="dark"] {
+        --bg-color: #121212;
+        --card-bg: #1e1e1e;
+        --text-color: #f0f0f0;
+        --text-secondary: #aaaaaa;
+        --primary-color: #5cbb5f;
+        --primary-hover: #6dcc70;
+        --nav-bg: #2d2d2d;
+        --border-color: #3d3d3d;
+        --tag-bg: #3d3d3d;
+        --shadow-color: rgba(0, 0, 0, 0.3);
+        --notification-bg: #2e8b57;
+        --notification-text: #f0f0f0;
+      }
+
+      /* Navbar, modal and notification styles remain unchanged */
+      .navbar { /* ... same as before ... */ }
+      .navbar-container { /* ... same as before ... */ }
+      .navbar-brand { /* ... */ }
+      .navbar-title { /* ... */ }
+      .navbar-title img { /* ... */ }
+      .navbar-menu { /* ... */ }
+      .navbar-links { /* ... */ }
+      .navbar-link { /* ... */ }
+      .navbar-link:hover { /* ... */ }
+      .navbar-link.active { /* ... */ }
+      .theme-toggle { /* ... */ }
+      .theme-toggle input { /* ... */ }
+      .slider { /* ... */ }
+      .slider:before { /* ... */ }
+      input:checked + .slider { /* ... */ }
+      input:checked + .slider:before { /* ... */ }
+      .theme-icon { /* ... */ }
+      .theme-toggle-container { /* ... */ }
+      .notification { /* ... */ }
+      .notification.show { /* ... */ }
+      .loading-spinner { /* ... */ }
+      .modal-overlay { /* ... */ }
+      .modal-overlay.show { /* ... */ }
+      .modal { /* ... */ }
+      .modal-overlay.show .modal { /* ... */ }
+      .modal-title { /* ... */ }
+      .modal-message { /* ... */ }
+      .modal-buttons { /* ... */ }
+      .modal-btn { /* ... */ }
+      .modal-btn.confirm { /* ... */ }
+      .modal-btn.cancel { /* ... */ }
+      .modal-btn:hover { /* ... */ }
+      @keyframes fadeInDown { /* ... */ }
+      @keyframes spin { /* ... */ }
+
+      body {
+          margin: 0;
+          padding: 0;
+          background-color: var(--bg-color);
+          font-family: Arial, sans-serif;
+          padding-top: 70px;
+          transition: background-color 0.3s ease, color 0.3s ease;
+          color: var(--text-color);
+      }
+      .container {
+          width: 100%;
+          max-width: none;
+          margin: 0 auto;
+          padding: 30px;
+          background: var(--card-bg);
+          border-radius: 20px;
+          box-shadow: 0 10px 30px -10px var(--shadow-color);
+          transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      }
+      .header {
+          text-align: center;
+          margin-bottom: 30px;
+      }
+      h1 {
+          font-size: 2rem;
+          color: var(--text-color);
+          margin-bottom: 15px;
+          transition: color 0.3s ease;
+      }
+      .description {
+          font-size: 1.1rem;
+          color: var(--text-secondary);
+          margin-bottom: 25px;
+          transition: color 0.3s ease;
+      }
+      /* Search Bar */
+      .search-container {
+          max-width: 600px;
+          width: 100%;
+          margin: 0 auto 20px;
+      }
+      #searchInput {
+          width: 90%;
+          padding: 12px 20px;
+          border: 1px solid var(--border-color);
+          border-radius: 20px;
+          font-size: 1rem;
+          background: var(--card-bg);
+          box-shadow: 0 2px 4px var(--shadow-color);
+          margin: 0 auto;
+          display: block;
+          color: var(--text-color);
+      }
+      #searchInput::placeholder {
+          color: var (--text-secondary);
+      }
+      /* Static Category Filter (from oldplace.html) */
+      .category-filter {
+          display: flex;
+          gap: 10px;
+          flex-wrap: wrap;
+          justify-content: center;
+          margin-bottom: 30px;
+      }
+      .filter-btn {
+          padding: 8px 16px;
+          background: var(--tag-bg);
+          border: none;
+          border-radius: 20px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-size: 0.9rem;
+          color: var(--text-color);
+      }
+      .filter-btn.active {
+          background: var(--primary-color);
+          color: white;
+      }
+      .filter-btn:hover:not(.active) {
+          background: var(--tag-bg);
+          opacity: 0.9;
+      }
+      /* Place Grid and Card Styles */
+      .places-grid {
+          display: grid;
+          gap: 20px;
+          grid-template-columns: repeat(1, 1fr);
+      }
+      @media screen and (min-width: 600px) {
+          .places-grid {
+              grid-template-columns: repeat(2, 1fr);
+          }
+      }
+      @media screen and (min-width: 900px) {
+          .places-grid {
+              grid-template-columns: repeat(3, 1fr);
+          }
+      }
+      @media screen and (min-width: 1200px) {
+          .places-grid {
+              grid-template-columns: repeat(4, minmax(300px, 1fr));
+          }
+      }
+      .place-card {
+          width: 100%;
+          border: 1px solid var(--border-color);
+          border-radius: 8px;
+          overflow: hidden;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          background: var(--card-bg);
+          padding: 20px;
+          box-shadow: 0 4px 6px var(--shadow-color);
+          display: flex;
+          flex-direction: column;
+          min-height: 400px;
+      }
+      .place-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 20px var(--shadow-color);
+      }
+      .place-image {
+          width: 100%;
+          height: 300px;
+          background-color: var(--tag-bg);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--text-secondary);
+      }
+      .place-info {
+          padding: 15px;
+      }
+      .place-title {
+          font-size: 1.2rem;
+          font-weight: bold;
+          margin-bottom: 8px;
+          color: var(--text-color);
+      }
+      .place-category {
+          display: inline-block;
+          background-color: var(--primary-color);
+          color: white;
+          font-size: 0.8rem;
+          padding: 3px 8px;
+          border-radius: 12px;
+          margin-bottom: 10px;
+      }
+      .place-description {
+          color: var(--text-secondary);
+          margin-bottom: 10px;
+      }
+      .place-details {
+          font-size: 0.9rem;
+          color: var(--text-secondary);
+      }
+      .back-button {
+          display: inline-block;
+          margin-top: 30px;
+          padding: 12px 25px;
+          background-color: var(--primary-color);
+          color: white;
+          text-decoration: none;
+          border-radius: 5px;
+          border: 2px solid var(--primary-hover);
+          transition: all 0.3s ease;
+          font-weight: bold;
+      }
+      .back-button:hover {
+          background-color: var(--primary-hover);
+          border-color: var(--primary-hover);
+          transform: scale(1.05);
+      }
+      /* Modal Styles */
+      .place-modal {
+          display: flex;
+          position: fixed;
+          z-index: 2000;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0);
+          opacity: 0;
+          visibility: hidden;
+          transition: all 0.3s ease-in-out;
+          align-items: center;
+          justify-content: center;
+      }
+      .place-modal.show-modal {
+          opacity: 1;
+          visibility: visible;
+          background-color: rgba(0, 0, 0, 0.7);
+      }
+      .place-modal-content {
+          background-color: var(--card-bg);
+          padding: 25px;
+          border-radius: 10px;
+          width: 90%;
+          max-width: 800px;
+          max-height: 90vh;
+          overflow-y: auto;
+          position: relative;
+          transform: scale(0.7) translateY(-50px);
+          opacity: 0;
+          transition: all 0.3s ease-in-out;
+      }
+      .show-modal .place-modal-content {
+          transform: scale(1) translateY(0);
+          opacity: 1;
+      }
+      .close-modal {
+          position: absolute;
+          right: 20px;
+          top: 15px;
+          width: 32px;
+          height: 32px;
+          background: var(--primary-color);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-size: 24px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          opacity: 0.9;
+          z-index: 1;
+      }
+      .close-modal:hover {
+          transform: rotate(90deg);
+          background: var(--primary-hover);
+          opacity: 1;
+      }
+      .place-modal-content .place-card {
+          transform: none !important;
+          box-shadow: none !important;
+          border: none;
+      }
+      .place-modal-content .place-image {
+          height: 300px;
+      }
+      .place-modal-content .place-info {
+          padding: 20px;
+      }
+      .place-modal-content .place-title {
+          font-size: 1.5rem;
+      }
+      .place-modal-content .place-description {
+          font-size: 1.1rem;
+      }
+      .date-display {
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+          padding: 6px 12px;
+          border-radius: 8px;
+          background-color: transparent;
+          box-shadow: none;
+          text-align: center;
+          transition: all 0.3s ease;
+          z-index: 1;
+      }
+      .current-date {
+          font-size: 1rem;
+          color: var(--primary-color);
+          font-weight: 500;
+          white-space: nowrap;
+          text-shadow: 0 2px 4px var(--shadow-color);
+          letter-spacing: 0.5px;
+      }
+      [data-theme="dark"] .current-date {
+          color: var(--primary-color);
+          text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      }
+      .category-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin: 8px 0;
+      }
+      .category-tag {
+          display: inline-flex;
+          align-items: center;
+          padding: 4px 12px;
+          background-color: var(--primary-color);
+          color: white;
+          border-radius: 50px;
+          font-size: 0.85rem;
+          font-weight: 500;
+          transition: all 0.3s ease;
+          box-shadow: 0 2px 4px var(--shadow-color);
+      }
+      .category-tag:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px var(--shadow-color);
+          background-color: var(--primary-hover);
+      }
+      .card {
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          padding: 16px;
+          margin: 8px;
+          display: inline-block;
+          width: 300px;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .card h3 {
+          margin-top: 0;
+      }
+      .card p {
+          font-size: 0.9em;
+          margin: 6px 0;
+      }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-container">
+      <div class="navbar-brand">
+        <a href="/main" class="navbar-title">
+          <img src="{{ url_for('static', filename='travelmatelogo.png') }}" alt="TravelMate Logo">
+        </a>
+      </div>
+      <div class="date-display">
+        <div id="date-time" class="current-date"></div>
+      </div>
+      <div class="navbar-menu">
+        <div class="navbar-links">
+          <a href="/main" class="navbar-link">Home</a>
+          <a href="/profile" class="navbar-link">Profile</a>
+          <a href="#" class="navbar-link" id="logoutLink">Logout</a>
+        </div>
+        <div class="theme-toggle-container">
+          <span class="theme-icon">☀️</span>
+          <label class="theme-toggle">
+            <input type="checkbox" id="themeToggle">
+            <span class="slider"></span>
+          </label>
+          <span class="theme-icon">🌙</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Notification Element -->
+  <div id="notification" class="notification">
+    <div class="loading-spinner"></div>
+    <span>Logging out...</span>
+  </div>
+
+  <!-- Logout Modal -->
+  <div id="logoutModal" class="modal-overlay">
+    <div class="modal">
+      <h3 class="modal-title">Logout Confirmation</h3>
+      <p class="modal-message">Are you sure you want to logout from your TravelMate account?</p>
+      <div class="modal-buttons">
+        <button id="cancelLogout" class="modal-btn cancel">Cancel</button>
+        <button id="confirmLogout" class="modal-btn confirm">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="container">
+    <div class="header">
+      <h1>Places in Tanay, Rizal</h1>
+      <p class="description">Explore the natural wonders and attractions of Tanay</p>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Search places...">
+    </div>
+
+    <!-- Category Filter (static buttons from oldplace.html) -->
+    <div class="category-filter">
+      <button class="filter-btn active" data-category="all">All</button>
+      <button class="filter-btn" data-category="Natural Attraction">Natural Attractions</button>
+      <button class="filter-btn" data-category="Adventure">Adventure</button>
+      <button class="filter-btn" data-category="Historical Site">Historical Sites</button>
+      <button class="filter-btn" data-category="Viewpoint">Viewpoints</button>
+      <button class="filter-btn" data-category="Mountain Village">Mountain Villages</button>
+      <button class="filter-btn" data-category="Restaurant">Restaurants</button>
+      <button class="filter-btn" data-category="Accommodation">Accommodations</button>
+      <button class="filter-btn" data-category="Cafe">Cafes</button>
+    </div>
+
+    <!-- Places Grid with dynamic for-loop -->
+    <div class="places-grid" id="placesGrid">
+      {% for place in places %}
+      <div class="card place-card" data-category="{{ place[2]|default('') }}">
+        <img 
+          src="{{ url_for('static', filename='places/' + (place[0]|replace(' ','')|lower ) + '.jpg') }}" 
+          alt="{{ place[0] }}"
+          style="width: 100%; height: auto;"
+        >
+        <h3 class="place-title">{{ place[0] }}</h3>
+        {% if place[2] %}
+          <span class="place-category">{{ place[2] }}</span>
+        {% endif %}
+        <p class="place-description">{{ place[1] }}</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Back to Main Page Button -->
+    <div style="text-align: center;">
+      <a href="{{ url_for('main_page') }}" class="back-button">Back to Main Page</a>
+    </div>
+
+    <!-- Place Details Modal -->
+    <div id="placeModal" class="place-modal">
+      <div class="place-modal-content">
+        <span class="close-modal">&times;</span>
+        <div id="modalContent"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Theme toggle functionality
+      const themeToggle = document.getElementById('themeToggle');
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      themeToggle.checked = savedTheme === 'dark';
+      themeToggle.addEventListener('change', function() {
+        const newTheme = this.checked ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+      });
+
+      // Logout functionality
+      const logoutLink = document.getElementById('logoutLink');
+      const logoutModal = document.getElementById('logoutModal');
+      const cancelLogout = document.getElementById('cancelLogout');
+      const confirmLogout = document.getElementById('confirmLogout');
+      logoutLink.addEventListener('click', function(event) {
+        event.preventDefault();
+        logoutModal.classList.add('show');
+      });
+      cancelLogout.addEventListener('click', function() {
+        logoutModal.classList.remove('show');
+      });
+      confirmLogout.addEventListener('click', function() {
+        const notification = document.getElementById('notification');
+        notification.classList.add('show');
+        logoutModal.classList.remove('show');
+        setTimeout(() => {
+          window.location.href = "{{ url_for('logout') }}";
+        }, 1000);
+      });
+
+      // Filter and search functionality
+      document.querySelectorAll('.filter-btn').forEach(button => {
+        button.addEventListener('click', () => {
+          document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+          button.classList.add('active');
+          applyFilters();
+        });
+      });
+      document.getElementById('searchInput').addEventListener('input', applyFilters);
+      function applyFilters() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const activeCategory = document.querySelector('.filter-btn.active').dataset.category;
+        document.querySelectorAll('.place-card').forEach(card => {
+          const title = card.querySelector('.place-title').textContent.toLowerCase();
+          const description = card.querySelector('.place-description').textContent.toLowerCase();
+          const category = card.dataset.category;
+          const categoryMatch = activeCategory === 'all' || category === activeCategory;
+          const searchMatch = title.includes(searchTerm) || description.includes(searchTerm);
+          card.style.display = (categoryMatch && searchMatch) ? 'block' : 'none';
+        });
+      }
+
+      // Modal functionality for place cards
+      const modal = document.getElementById('placeModal');
+      const closeModal = document.querySelector('.close-modal');
+      document.querySelectorAll('.place-card').forEach(card => {
+        card.addEventListener('click', function() {
+          const modalContent = document.getElementById('modalContent');
+          modalContent.innerHTML = this.innerHTML;
+          modal.classList.add('show-modal');
+        });
+      });
+      closeModal.addEventListener('click', function() {
+        modal.classList.remove('show-modal');
+      });
+      window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+          modal.classList.remove('show-modal');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
